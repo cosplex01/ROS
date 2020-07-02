@@ -44,16 +44,25 @@ class simple_kinematic :
         while not rospy.is_shutdown():
             if self.is_servo == True and self.is_speed == True :
                 #sending data to Terminal Console (motorRPM, handleUse)
-                print(self.speed, self.servo_angle_rad*180/pi)
-                #kinematic model function
-                x_dot = self.speed*cos(self.theta+self.servo_angle_rad)/20
-                y_dot = self.speed*sin(self.theta+self.servo_angle_rad)/20
+                #kinematic model function send data
+                #print(self.speed, self.servo_angle_rad*180/pi)
+                #imu + velocity send data
+                print(self.speed, self.theta*180/pi)
+                #kinematic model function to X point
+                #x_dot = self.speed*cos(self.theta+self.servo_angle_rad)/20
+                #imu + velocity model function to X point
+                x_dot = self.speed*cos(self.theta)/20
+                #kinematic model function to Y point
+                #y_dot = self.speed*sin(self.theta+self.servo_angle_rad)/20
+                #imu + velocity model function to Y point
+                y_dot = self.speed*sin(self.theta)/20
                 theta_dot = self.speed*sin(self.servo_angle_rad)/self.L/20
                 #odometry function
                 self.odom_msg.pose.pose.position.x = self.odom_msg.pose.pose.position.x+x_dot
                 self.odom_msg.pose.pose.position.y = self.odom_msg.pose.pose.position.y+y_dot
                 #odometry function to linkdata on kinematic model data
-                self.theta = self.theta+theta_dot
+                #self.theta = self.theta+theta_dot
+                
                 quaternion = quaternion_from_euler(0,0,self.theta)
                 self.odom_msg.pose.pose.orientation.x =quaternion[0]
                 self.odom_msg.pose.pose.orientation.y =quaternion[1]

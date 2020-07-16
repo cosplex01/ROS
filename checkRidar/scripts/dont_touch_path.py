@@ -34,27 +34,9 @@ class make_path :
         #make file on created Folder
         full_path=pkg_path+'/path'+'/path.txt'
         self.f=open(full_path,'w')
-        #if path loading
-        #lines=self.f.readlines()
-        #for line in lines:
-        #    tmp=line.split()
-        #    read_pose=PoseStamped()
-        #    read_pose.pose.position.x = float(tmp[0])
-        #    read_pose.pose.position.y = float(tmp[1])
-        #    read_pose.pose.orientation.w = 1
-        #    self.path_msg.poses.append(read_pose)
-        #load and replay on path
-        #rate = rospy.Rate(20)
-
-        #if path loading
-        #self.f.close()
-
+        
         while not rospy.is_shutdown():    
-            #don`t close __init__        
             rospy.spin()
-            #close __init__ and load path
-            #self.path_pub.publish(self.path_msg)
-            #rate.sleep()
         #if path making 
         self.f.close()
 

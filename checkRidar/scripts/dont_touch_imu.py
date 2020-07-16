@@ -29,25 +29,23 @@ class imu_odom:
         self.odom_msg.header.frame_id = '/odom'
 
         self.rpm_gain = 4614
-        self.thata = 0
+        self.theta = 0
 
         rate = rospy.Rate(20)
 
         while not rospy.is_shutdown():
 
             if self.is_imu ==True and self.is_speed == True:
-                print(self.speed, self.thata*180/pi)
-                #thata adding on time(0.05) - gaksokdo check
-                #self.thata+=self.yaw_vel*0.05
-                self.thata = self.thata + self.angular_velocity_z/20
+                print(self.speed, self.theta*180/pi)
+                #self.theta = self.theta + self.angular_velocity_z/20
                 #20Hz continue adding
-                x_dot = self.speed*cos(self.thata)/20
-                y_dot = self.speed*sin(self.thata)/20
+                x_dot = self.speed*cos(self.theta)/20
+                y_dot = self.speed*sin(self.theta)/20
 
                 self.odom_msg.pose.pose.position.x = self.odom_msg.pose.pose.position.x + x_dot
                 self.odom_msg.pose.pose.position.y = self.odom_msg.pose.pose.position.y + y_dot
                 #quaternion change to orientation
-                quaternion = quaternion_from_euler(0,0,self.thata)
+                quaternion = quaternion_from_euler(0,0,self.theta)
                 self.odom_msg.pose.pose.orientation.x = quaternion[0]
                 self.odom_msg.pose.pose.orientation.y = quaternion[1]
                 self.odom_msg.pose.pose.orientation.z = quaternion[2]
@@ -68,14 +66,13 @@ class imu_odom:
 
     def imu_callback(self, msg):
         #use angular velocity.z
-        self.angular_velocity_z =msg.angular_velocity.z
-        # imu_quaternation= (msg.orientation.x, msg.orientation.y, msg.orientation.z,  msg.orientation.w)
+        imu_quaternion= (msg.orientation.x, msg.orientation.y, msg.orientation.z,  msg.orientation.w)
         if self.is_imu ==False:
             self.is_imu = True
-        #     _,_,self.thata_offset = euler_from_quaternion(imu_quaternation)
-        # else:
-        #     _,_,raw_theta = euler_from_quaternion(imu_quaternation)
-        #     self.thata = raw_theta-self.thata_offset
+            _,_,self.theta_offset = euler_from_quaternion(imu_quaternion)
+        else:
+            _,_,raw_theta = euler_from_quaternion(imu_quaternion)
+            self.theta = raw_theta-self.theta_offset
     
 
 if __name__ == "__main__":

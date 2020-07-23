@@ -45,21 +45,4 @@ if __name__ == '__main__':
 
     rate = rospy.Rate(30)
 
-    while not rospy.is_shutdown():
-        if image_parser.img_wlane is not None:
-           img_warp = bev_op.warp_bev_img(image_parser.img_wlane)
-           lane_pts = bev_op.recon_lane_pts(image_parser.img_wlane)
-
-           x_pred, y_pred_l, y_pred_r = curve_learner.fit_curve(lane_pts)
-
-           xyl, xyr = bev_op.project_lane2img(x_pred, y_pred_l, y_pred_r)
-
-           img_warp1 = draw_lane_img(img_warp, xyl[:,0].astype(np.int32),
-                                    xyl[:,1].astype(np.int32),
-                                    xyr[:,0].astype(np.int32),
-                                    xyr[:,1].astype(np.int32))
-            
-           cv2.imshow("image Viewer", img_warp1)
-           cv2.waitKey(1)
-
-           rate.sleep()
+    

@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="lane_detection_example" type="lane_detection.py" name="lane_detector"/>
+    <node pkg="lane_detection_example" type="traffic_detector.py" name="traffic_detector"/>
+    <node pkg="lane_detection_example" type="stopline_detector.py" name="stoplane_detector"/>
+    <node pkg="lane_detection_example" type="traffic_control.py" name="traffic_control"/>
+    
+</launch>

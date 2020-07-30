@@ -133,6 +133,13 @@ class BEVTransform:
             self.alpha_c = np.arctan2(params_cam["WIDTH"]/2,self.fc_y)
 
             self.fc_x = self.fc_y
+        elif params_cam["ENGINE"]=="LOGITECH":
+            
+            self.fc_y = params_cam["HEIGHT"]/2*3.67
+            self.alpha_c = np.arctan2(params_cam["WIDTH"]/2,self.fc_y)
+
+            self.fc_x = self.fc_y
+            self.alpha_r = np.arctan2(params_cam["HEIGHT"]/2,self.fc_y)
         else:
             self.alpha_c = np.deg2rad(params_cam["FOV"]/2)
 
@@ -325,7 +332,7 @@ def draw_lane_img(img, leftx, lefty, rightx, righty):
 class purePursuit:
     def __init__(self, lfd):
         self.is_look_forward_point=False
-        self.vehicle_length=1
+        self.vehicle_length=0.5 #1 = simulator
         #look ahead distance
         self.lfd=lfd
         self.min_lfd=0.7
@@ -361,8 +368,9 @@ class purePursuit:
 
         if self.is_look_forward_point:
             steering_deg=math.atan2((2*self.vehicle_length*math.sin(theta)), self.lfd)*180/math.pi #deg
-
-            self.steering=np.clip(steering_deg, -22,22)/44+0.5
+            self.steering=np.clip(steering_deg, -17,17)/34+0.5
+            #simulator    
+            #self.steering=np.clip(steering_deg, -22,22)/44+0.5
             print(self.steering)
             return self.steering
         else:

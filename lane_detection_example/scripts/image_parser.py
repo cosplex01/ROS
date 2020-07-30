@@ -19,6 +19,26 @@ class IMGParser:
                                      [0.5 + 0.15, 0.52],
                                      [1 - 0.05, 0.65]])
         self.img_wlane = None
+        self.img = None
+        self.set_cam(1) #TX borad connected cam
+
+   def set_cam(self, _index):
+       self.cam = cv2.VideoCapture(int(_index))
+       
+   def get_image(self):
+       ret, img = self.cam.read()
+       return ret, img
+
+   def get_bi_img(self):
+       ret, img_bgr = self.get_image()
+       img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
+
+       lower_wlane = np.array([75,0,220])
+       upper_wlane = np.array([175,20,255])
+       img_wlane = cv2.inRange(img_hsv, lower_wlane, upper_wlane)
+
+       return img_wlane
+
    def callback(self, msg):
         try:
             np_arr = np.fromstring(msg.data, np.uint8)

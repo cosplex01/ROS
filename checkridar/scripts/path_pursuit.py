@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 #from _future_ import print_function
-
 import rospy
 import rospkg
 from sensor_msgs.msg import LaserScan, PointCloud, Imu
@@ -17,9 +16,10 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 class pure_pursuit:
     def __init__(self):
         rospy.init_node('make_path',anonymous=True)
-        rospy.Subscriber("path", Path, self.path_callback)
-        #rospy.Subscriber("odom",Odometry,self.odom_callback)
-        rospy.Subscriber("/amcl_pose",PoseWithCovarianceStamped, self.amcl_callback)
+        rospy.Subscriber('path', Path, self.path_callback)
+        rospy.Subscriber('/odom',Odometry,self.odom_callback)
+        #amcl_pose is RC mode
+        #rospy.Subscriber('/amcl_pose',PoseWithCovarianceStamped, self.amcl_callback)
         self.motor_pub = rospy.Publisher('commands/motor/speed',Float64,queue_size=1)
         self.servo_pub = rospy.Publisher('commands/servo/position',Float64,queue_size=1)
         self.motor_msg=Float64()
@@ -31,7 +31,7 @@ class pure_pursuit:
         self.current_position=Point()
         self.is_look_forward_point=False
         self.vehicle_length=0.5
-        self.Lfd = 0.5
+        self.Lfd = 1
         self.steering =0
 
         self.steering_angle_to_servo_gain=-1.2135
@@ -52,19 +52,19 @@ class pure_pursuit:
                     rotated_potion.x = cos(self.vehicle_yaw)*dx + sin(self.vehicle_yaw)*dy
                     rotated_potion.y = sin(self.vehicle_yaw)*dx - cos(self.vehicle_yaw)*dy
 
-                    if rotated_point.x >0:
-                        dis=sqrt(pow(rotate_point.x,2)+pow(rotated_point.y,2))
+                    if rotated_potion.x >0:
+                        dis=sqrt(pow(rotated_potion.x,2)+pow(rotated_potion.y,2))
                         if dis>=self.Lfd:
                             self.forward_point=path_point
                             self.is_look_forward_point=True
 
                             break
 
-                theta=-atan2(rotated_point.y, rotated_point.x)        
+                theta=-atan2(rotated_potion.y, rotated_potion.x)        
                 if self.is_look_forward_point:
                     self.steering=atan2((2*self.vehicle_length*sin(theta)),self.Lfd) #rad
                     print(self.steering*180/pi) #degree
-                    self.motor_msg.data = 2000
+                    self.motor_msg.data = 10000
                 else:
                     self.steering = 0
                     print("no found fowoard point")    
@@ -80,7 +80,8 @@ class pure_pursuit:
     
     def path_callback(self, msg):
         self.is_path=True
-        self.path=msg #nav_msgs/Path
+        self.path=msg
+        #self.path=nav_msgs/Path
 
     def odom_callback(self, msg):
         self.is_odom = True

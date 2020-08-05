@@ -24,13 +24,15 @@ class make_path :
         self.path_pub = rospy.Publisher('/path',Path, queue_size=1)
         self.is_odom = False
         self.path_msg=Path()
-        self.path_msg.header.frame_id='/odom'
+        #self.path_msg.header.frame_id='/odom'
+        #gps conncection to map loading is /map
+        self.path_msg.header.frame_id='/map'
         self.prev_x=0
         self.prev_y=0
         #read on path at saveFile
         rospack=rospkg.RosPack()
         #save to path odometry in File that find pakageFile
-        pkg_path=rospack.get_path('checkRidar')
+        pkg_path=rospack.get_path('checkridar')
         #make file on created Folder
         full_path=pkg_path+'/path'+'/path.txt'
         self.f=open(full_path,'w')

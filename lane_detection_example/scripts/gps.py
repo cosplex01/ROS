@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#-*- coding: utf-8 -*-
 import rospy
 import numpy as np
 import tf
@@ -116,6 +117,7 @@ class LocationSensor:
         return east, north
 
     def navsat_callback(self, gps_msg):
+
         lat = gps_msg.latitude
         lon = gps_msg.longitude
 
@@ -125,6 +127,20 @@ class LocationSensor:
         e_global, n_global = self.convertLL2UTM(lat, lon)
 
         x,y = e_global - e_o, n_global - n_o
+
+        dx=x-self.prev_x
+        dy=y-self.prev_y
+        dis=sqrt(dx*dx + dy*dy)
+        #차가 향하는 방향을 표시하지만, rbiz에서는 반대방향으로 표시됩니다
+        if dis > 0.02:
+            heading=atan2(dy,dx)
+            self.prev_x=x
+            self.prev_y=y
+
+        else :
+            heading=self.prev_heading
+        #차가 향하는 방향의 좌표계를 컴퓨터 시뮬레이션에서 사용하도록 변경합니다
+        q=tf.transformations.quaternion_from_euler(0, 0, heading)
         
         odom_msg = Odometry()
         odom_msg.child_frame_id='base_link'
@@ -133,11 +149,21 @@ class LocationSensor:
         odom_msg.pose.pose.position.x=x
         odom_msg.pose.pose.position.y=y
         odom_msg.pose.pose.position.z=0
-        odom_msg.pose.pose.orientation.x=0
-        odom_msg.pose.pose.orientation.y=0
-        odom_msg.pose.pose.orientation.z=0
-        odom_msg.pose.pose.orientation.w=1
+        odom_msg.pose.pose.orientation.x=q[0]
+        odom_msg.pose.pose.orientation.y=q[1]
+        odom_msg.pose.pose.orientation.z=q[2]
+        odom_msg.pose.pose.orientation.w=q[3]
+        odom_msg.twist.twist.linear.x=self.vel
         self.odom_pub.publish(odom_msg)
+
+        br = tf.TransformBroadcaster()
+        br.sendTransform((x,y,0),
+                        q,
+                        rospy.Time.now(),
+                        "base_link",
+                        "map")
+
+        self.prev_heading=heading
         
 if __name__ == '__main__':
     rospy.init_node('gps_parser', anonymous=True)
